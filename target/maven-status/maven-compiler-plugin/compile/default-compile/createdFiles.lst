@@ -1,6 +1,7 @@
-com/cadastro/financiamentos/FinanciamentoApplication.class
-com/cadastro/financiamentos/resources/FinanciamentoResource.class
-com/cadastro/financiamentos/config/SwaggerConfig.class
-com/cadastro/financiamentos/repository/FinanciamentoRepository.class
-com/cadastro/financiamentos/dto/FinanciamentoDTO.class
-com/cadastro/financiamentos/models/FinanciamentoDAO.class
+com\importpc\resources\UsuariosResource.class
+com\importpc\dto\UsuariosDTO.class
+com\importpc\config\SwaggerConfig.class
+com\importpc\repository\UsuariosRepository.class
+com\importpc\ImportPcApplication.class
+com\importpc\service\UserService.class
+com\importpc\models\UsuariosEntity.class

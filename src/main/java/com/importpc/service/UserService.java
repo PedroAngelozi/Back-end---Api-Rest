@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.importpc.dto.UsuarioResponse;
 import com.importpc.dto.UsuariosDTO;
 import com.importpc.models.UsuariosEntity;
 import com.importpc.repository.UsuariosRepository;
@@ -18,6 +20,8 @@ public class UserService {
 	@Autowired
 	private UsuariosRepository repository;
 
+	public static final String PATTERN = "(?=.[}{,.^?~=+\\-_\\/\\-+.\\|])(?=.[a-zA-Z])(?=.[0-9]).{8,}";
+	
 	public List<UsuariosEntity> getAll() {
 		return repository.findAtivos();
 
@@ -28,39 +32,29 @@ public class UserService {
 
 	}
 	
-	public ResponseEntity<?>  create(UsuariosEntity user) {
-		List<UsuariosEntity> entityRetorno = repository.findUser(user.getDcrLogin());
-
+public ResponseEntity<?> create(UsuariosEntity user) {
 		
-		if(user.getDcrSenha().matches("^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$")) {
-			System.out.println("Exemplo que passa");
+		UsuarioResponse response = new UsuarioResponse();
+		
+		if(!user.getDcrSenha().matches(PATTERN)) {
+			 response.setMessage("A senha deve conter no minimo 8 caracteres, 1 numero e 1 caracter especial!");
+			 response.setSuccess(false);
+			 return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
+		}
+		
+		List<UsuariosEntity> entityRetorno = repository.findUser(user.getDcrLogin());
+		
+		if(entityRetorno.size() > 0) {
 			
-			if(entityRetorno.size() > 0) {
-				return ResponseEntity.ok().build();
-			}
-			
-			
-		} else if(user.getDcrSenha().matches("(?=.*[}{,.^?~=+\\-_\\/*\\-+.\\|])(?=.*[a-zA-Z])(?=.*[0-9]).{8,}")) {
-			System.out.println("exemplo que nao passa (falta caractere especial)");
-			
-		} else if(user.getDcrSenha().matches("(?=.*[}{,.^?~=+\\-_\\/*\\-+.\\|])(?=.*[a-zA-Z])(?=.*[0-9]).{8,}")) {
-			System.out.println("exemplo que nao passa (falta numero)");
-			
-		} else if(user.getDcrSenha().matches("(?=.*[}{,.^?~=+\\-_\\/*\\-+.\\|])(?=.*[a-zA-Z])(?=.*[0-9]).{8,}")) {
-			System.out.println("exemplo que nao passa (falta letra)");
-			
-		} else if(user.getDcrSenha().matches("(?=.*[}{,.^?~=+\\-_\\/*\\-+.\\|])(?=.*[a-zA-Z])(?=.*[0-9]).{8,}")) {
-			System.out.println("exemplo que nao passa (nao tem minimo de 8 caracteres)");
-			
+			response.setMessage("USUARIO JA EXISTENTE");
+			response.setSuccess(false);
+			return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
 		}
 		
 		repository.save(user);
-	    return ResponseEntity.ok().build();
-		
-		
-		 
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	public void update(UsuariosDTO dto, Integer id) {
 		UsuariosEntity entity = repository.findById(id).get();
 		entity = dto.buildSalvar(dto);
